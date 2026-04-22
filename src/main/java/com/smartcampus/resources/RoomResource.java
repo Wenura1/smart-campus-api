@@ -11,8 +11,11 @@ import java.util.*;
 @Path("/rooms")
 public class RoomResource {
 
-    // in-memory data (no database)
+    // in-memory storage
     private static Map<Integer, Room> rooms = new HashMap<>();
+
+    // auto id counter
+    private static int currentId = 3;
 
     // sample data
     static {
@@ -36,7 +39,6 @@ public class RoomResource {
         Room room = rooms.get(id);
 
         if (room == null) {
-            // not found
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Room not found")
                     .build();
@@ -45,13 +47,13 @@ public class RoomResource {
         return Response.ok(room).build();
     }
 
-    // add new room
+    // add new room (id auto generated)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addRoom(Room room) {
 
-        // simple validation
+        // validation
         if (room.getName() == null || room.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Room name required")
@@ -64,6 +66,8 @@ public class RoomResource {
                     .build();
         }
 
+        // generate id
+        room.setId(currentId++);
         rooms.put(room.getId(), room);
 
         return Response.status(Response.Status.CREATED)
@@ -86,7 +90,7 @@ public class RoomResource {
                     .build();
         }
 
-        // validation again
+        // validation
         if (updatedRoom.getName() == null || updatedRoom.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Room name required")
@@ -99,7 +103,6 @@ public class RoomResource {
                     .build();
         }
 
-        // update values
         existing.setName(updatedRoom.getName());
         existing.setCapacity(updatedRoom.getCapacity());
 

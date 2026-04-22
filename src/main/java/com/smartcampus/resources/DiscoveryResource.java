@@ -27,4 +27,21 @@ public class DiscoveryResource {
 
         return response;
     }
+
+    // update an existing room
+    @PUT
+    @Path("/rooms/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public String updateRoom(@PathParam("id") int id, Room updatedRoom) {
+
+        if (!rooms.containsKey(id)) {
+            return "Room not found";
+        }
+
+        updatedRoom.setId(id); // keep id same
+        rooms.put(id, updatedRoom);
+
+        return "Room updated successfully";
+    }
 }

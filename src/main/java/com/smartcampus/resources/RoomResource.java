@@ -124,13 +124,24 @@ public class RoomResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRoom(@PathParam("id") int id) {
 
-        Room removed = rooms.remove(id);
+        Room removed = rooms.get(id);
 
         if (removed == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(buildResponse("error", "Room not found"))
                     .build();
         }
+
+        // check if any sensor is using this room
+        for (var sensor : SensorResource.getSensorMap().values()) {
+            if (sensor.getRoomId() == id) {
+                return Response.status(Response.Status.CONFLICT)
+                        .entity(buildResponse("error", "Room has sensors assigned"))
+                        .build();
+            }
+        }
+
+        rooms.remove(id);
 
         // return deleted room
         return Response.ok(buildResponse("success", removed)).build();

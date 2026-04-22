@@ -7,11 +7,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
-// base path → /api/v1/rooms
+// API for room operations
 @Path("/rooms")
 public class RoomResource {
 
-    // in-memory storage
+    // in-memory data (no database)
     private static Map<Integer, Room> rooms = new HashMap<>();
 
     // sample data
@@ -20,14 +20,14 @@ public class RoomResource {
         rooms.put(2, new Room(2, "Lecture Hall", 100));
     }
 
-    // GET all rooms
+    // get all rooms
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<Room> getAllRooms() {
         return rooms.values();
     }
 
-    // GET room by id
+    // get room by id
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -36,6 +36,7 @@ public class RoomResource {
         Room room = rooms.get(id);
 
         if (room == null) {
+            // not found
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Room not found")
                     .build();
@@ -44,11 +45,24 @@ public class RoomResource {
         return Response.ok(room).build();
     }
 
-    // POST new room
+    // add new room
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addRoom(Room room) {
+
+        // simple validation
+        if (room.getName() == null || room.getName().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Room name required")
+                    .build();
+        }
+
+        if (room.getCapacity() <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Capacity must be > 0")
+                    .build();
+        }
 
         rooms.put(room.getId(), room);
 
@@ -57,7 +71,7 @@ public class RoomResource {
                 .build();
     }
 
-    // PUT update room
+    // update room
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -72,6 +86,19 @@ public class RoomResource {
                     .build();
         }
 
+        // validation again
+        if (updatedRoom.getName() == null || updatedRoom.getName().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Room name required")
+                    .build();
+        }
+
+        if (updatedRoom.getCapacity() <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Capacity must be > 0")
+                    .build();
+        }
+
         // update values
         existing.setName(updatedRoom.getName());
         existing.setCapacity(updatedRoom.getCapacity());
@@ -79,7 +106,7 @@ public class RoomResource {
         return Response.ok(existing).build();
     }
 
-    // DELETE room
+    // delete room
     @DELETE
     @Path("/{id}")
     public Response deleteRoom(@PathParam("id") int id) {

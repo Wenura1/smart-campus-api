@@ -17,29 +17,46 @@ http://localhost:8080/api/v1
 
 ## Endpoints
 
-GET /rooms
-GET /rooms/{id}
-POST /rooms
-PUT /rooms/{id}
-DELETE /rooms/{id}
+Get API Info
 
-## Example Request (POST)
+GET /api/v1/info
 
+Get All Rooms
+
+GET /api/v1/rooms
+
+Add Room
+
+POST /api/v1/rooms
+
+Example:
 {
 "name": "New Room",
 "capacity": 25
 }
 
-## Example Response
+Update Room
+
+PUT /api/v1/rooms/{id}
+
+Example:
+PUT /api/v1/rooms/1
 
 {
-"status": "success",
-"data": {
-"id": 3,
-"name": "New Room",
-"capacity": 25
+"name": "Updated Lab",
+"capacity": 50
 }
-}
+
+Delete Room
+
+DELETE /api/v1/rooms/{id}
+
+Error Handling
+Returns 404 if room ID not found
+Returns 400 if request data is invalid
+Testing
+
+Tested using Postman for all endpoints.
 
 ## Notes
 

@@ -17,25 +17,11 @@ http://localhost:8080/api/v1
 
 ## Endpoints
 
-GET /rooms
-GET /rooms/{id}
-POST /rooms
-PUT /rooms/{id}
-DELETE /rooms/{id}
 
-## Example Request (POST)
+
+
 
 {
-"name": "New Room",
-"capacity": 25
-}
-
-## Example Response
-
-{
-"status": "success",
-"data": {
-"id": 3,
 "name": "New Room",
 "capacity": 25
 }

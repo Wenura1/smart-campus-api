@@ -7,41 +7,31 @@ import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 
+// base endpoint for API info
+// when user hits /api/v1 -> this runs
 @Path("/")
 public class DiscoveryResource {
 
+    // handles GET request
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> getApiInfo() {
 
+        // main response object
         Map<String, Object> response = new HashMap<>();
 
+        // basic API details
         response.put("version", "v1");
         response.put("contact", "admin@uni.com");
 
+        // list of available endpoints
         Map<String, String> resources = new HashMap<>();
-        resources.put("rooms", "/api/v1/rooms");
-        resources.put("sensors", "/api/v1/sensors");
+        resources.put("rooms", "/api/v1/rooms"); // rooms API
 
+        // attach resources to main response
         response.put("resources", resources);
 
+        // return JSON response
         return response;
-    }
-
-    // update an existing room
-    @PUT
-    @Path("/rooms/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String updateRoom(@PathParam("id") int id, Room updatedRoom) {
-
-        if (!rooms.containsKey(id)) {
-            return "Room not found";
-        }
-
-        updatedRoom.setId(id); // keep id same
-        rooms.put(id, updatedRoom);
-
-        return "Room updated successfully";
     }
 }

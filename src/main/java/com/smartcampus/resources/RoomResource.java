@@ -34,4 +34,35 @@ public class RoomResource {
         RoomRepository.addRoom(room);
         return "Room added";
     }
+
+    // PUT update room
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public String updateRoom(@PathParam("id") int id, Room room) {
+
+        boolean updated = RoomRepository.updateRoom(id, room);
+
+        if (updated) {
+            return "Room updated";
+        } else {
+            return "Room not found";
+        }
+    }
+
+    // DELETE room
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String deleteRoom(@PathParam("id") int id) {
+
+        boolean deleted = RoomRepository.deleteRoom(id);
+
+        if (deleted) {
+            return "Room deleted";
+        } else {
+            return "Room not found";
+        }
+    }
 }

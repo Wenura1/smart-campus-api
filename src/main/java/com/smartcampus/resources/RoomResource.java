@@ -23,11 +23,19 @@ public class RoomResource {
         rooms.put(2, new Room(2, "Lecture Hall", 100));
     }
 
+    // helper method to build response
+    private Map<String, Object> buildResponse(String status, Object data) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", status);
+        response.put("data", data);
+        return response;
+    }
+
     // get all rooms
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<Room> getAllRooms() {
-        return rooms.values();
+    public Response getAllRooms() {
+        return Response.ok(buildResponse("success", rooms.values())).build();
     }
 
     // get room by id
@@ -40,14 +48,14 @@ public class RoomResource {
 
         if (room == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Room not found")
+                    .entity(buildResponse("error", "Room not found"))
                     .build();
         }
 
-        return Response.ok(room).build();
+        return Response.ok(buildResponse("success", room)).build();
     }
 
-    // add new room (id auto generated)
+    // add new room
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -56,22 +64,21 @@ public class RoomResource {
         // validation
         if (room.getName() == null || room.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Room name required")
+                    .entity(buildResponse("error", "Room name required"))
                     .build();
         }
 
         if (room.getCapacity() <= 0) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Capacity must be > 0")
+                    .entity(buildResponse("error", "Capacity must be > 0"))
                     .build();
         }
 
-        // generate id
         room.setId(currentId++);
         rooms.put(room.getId(), room);
 
         return Response.status(Response.Status.CREATED)
-                .entity(room)
+                .entity(buildResponse("success", room))
                 .build();
     }
 
@@ -86,42 +93,42 @@ public class RoomResource {
 
         if (existing == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Room not found")
+                    .entity(buildResponse("error", "Room not found"))
                     .build();
         }
 
-        // validation
         if (updatedRoom.getName() == null || updatedRoom.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Room name required")
+                    .entity(buildResponse("error", "Room name required"))
                     .build();
         }
 
         if (updatedRoom.getCapacity() <= 0) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Capacity must be > 0")
+                    .entity(buildResponse("error", "Capacity must be > 0"))
                     .build();
         }
 
         existing.setName(updatedRoom.getName());
         existing.setCapacity(updatedRoom.getCapacity());
 
-        return Response.ok(existing).build();
+        return Response.ok(buildResponse("success", existing)).build();
     }
 
     // delete room
     @DELETE
     @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRoom(@PathParam("id") int id) {
 
         Room removed = rooms.remove(id);
 
         if (removed == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Room not found")
+                    .entity(buildResponse("error", "Room not found"))
                     .build();
         }
 
-        return Response.ok("Room deleted").build();
+        return Response.ok(buildResponse("success", "Room deleted")).build();
     }
 }

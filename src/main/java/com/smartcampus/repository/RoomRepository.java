@@ -5,24 +5,24 @@ import com.smartcampus.model.Room;
 import java.util.ArrayList;
 import java.util.List;
 
-// this class stores room data in memory
+// handles in-memory data (no database yet)
 public class RoomRepository {
 
-    // list to store rooms
+    // list storing rooms
     private static List<Room> rooms = new ArrayList<>();
 
-    // static block to add some sample data
+    // initial sample data
     static {
         rooms.add(new Room(1, "Lab A", 40));
         rooms.add(new Room(2, "Lecture Hall", 100));
     }
 
-    // get all rooms
+    // return all rooms
     public static List<Room> getAllRooms() {
         return rooms;
     }
 
-    // get room by id
+    // find room by id
     public static Room getRoomById(int id) {
         for (Room room : rooms) {
             if (room.getId() == id) {
@@ -37,7 +37,7 @@ public class RoomRepository {
         rooms.add(room);
     }
 
-    // update room
+    // update existing room
     public static boolean updateRoom(int id, Room updatedRoom) {
         for (Room room : rooms) {
             if (room.getId() == id) {
@@ -49,7 +49,7 @@ public class RoomRepository {
         return false;
     }
 
-    // delete room
+    // delete room by id
     public static boolean deleteRoom(int id) {
         return rooms.removeIf(room -> room.getId() == id);
     }

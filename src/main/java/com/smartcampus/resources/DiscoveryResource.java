@@ -7,31 +7,27 @@ import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 
-// base endpoint for API info
-// when user hits /api/v1 -> this runs
-@Path("/")
+// endpoint → /api/v1/info
+@Path("/info")
 public class DiscoveryResource {
 
-    // handles GET request
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> getApiInfo() {
 
-        // main response object
+        // response map
         Map<String, Object> response = new HashMap<>();
 
-        // basic API details
+        // basic info
         response.put("version", "v1");
         response.put("contact", "admin@uni.com");
 
-        // list of available endpoints
+        // endpoints list
         Map<String, String> resources = new HashMap<>();
-        resources.put("rooms", "/api/v1/rooms"); // rooms API
+        resources.put("rooms", "/api/v1/rooms");
 
-        // attach resources to main response
         response.put("resources", resources);
 
-        // return JSON response
         return response;
     }
 }

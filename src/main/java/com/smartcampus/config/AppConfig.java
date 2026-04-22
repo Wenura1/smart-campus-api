@@ -1,11 +1,14 @@
 package com.smartcampus.config;
 
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import org.glassfish.jersey.server.ResourceConfig;
 
-// this sets the base URL for all endpoints
-// everything will be under /api/v1
+// base path for ALL endpoints
 @ApplicationPath("/api/v1")
-public class AppConfig extends Application {
-    // no need to write anything inside
+public class AppConfig extends ResourceConfig {
+
+    public AppConfig() {
+        // scan resource classes
+        packages("com.smartcampus.resources");
+    }
 }

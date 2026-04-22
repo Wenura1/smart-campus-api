@@ -1,26 +1,25 @@
 package com.smartcampus;
 
+import com.smartcampus.config.AppConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 
 import java.io.IOException;
 import java.net.URI;
 
 public class Main {
 
-    // base URL
+    // base server URL ONLY (no /api/v1 here)
     public static final String BASE_URI = "http://localhost:8080/";
 
     public static HttpServer startServer() {
 
-        // scan resources
-        final ResourceConfig rc = new ResourceConfig()
-                .packages("com.smartcampus");
+        // use AppConfig (IMPORTANT)
+        final AppConfig config = new AppConfig();
 
-        // set base path here (/api/v1)
         return GrizzlyHttpServerFactory.createHttpServer(
-                URI.create(BASE_URI + "api/v1/"), rc
+                URI.create(BASE_URI),
+                config
         );
     }
 
@@ -28,11 +27,12 @@ public class Main {
 
         final HttpServer server = startServer();
 
-        System.out.println("Server started at http://localhost:8080/api/v1");
-        System.out.println("Press ENTER to stop...");
+        // simple output
+        System.out.println("Server running:");
+        System.out.println(" http://localhost:8080/api/v1/info");
+        System.out.println(" http://localhost:8080/api/v1/rooms");
 
-        System.in.read(); // keep running
-
+        System.in.read();
         server.shutdownNow();
     }
 }

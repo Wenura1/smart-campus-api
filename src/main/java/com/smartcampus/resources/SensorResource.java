@@ -81,6 +81,12 @@ public class SensorResource {
                 .build();
     }
 
+    // sub-resource locator for readings
+    @Path("/{id}/readings")
+    public SensorReadingResource getReadingResource(@PathParam("id") int id) {
+        return new SensorReadingResource(id);
+    }
+
     // expose sensors (used later)
     public static Map<Integer, Sensor> getSensorMap() {
         return sensors;

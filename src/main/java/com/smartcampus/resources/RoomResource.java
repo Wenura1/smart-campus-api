@@ -1,68 +1,97 @@
 package com.smartcampus.resources;
 
 import com.smartcampus.model.Room;
-import com.smartcampus.repository.RoomRepository;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
+import javax.ws.rs.core.Response;
+import java.util.*;
 
-// endpoint → /api/v1/rooms
+// base path → /api/v1/rooms
 @Path("/rooms")
 public class RoomResource {
+
+    // in-memory storage
+    private static Map<Integer, Room> rooms = new HashMap<>();
+
+    // sample data
+    static {
+        rooms.put(1, new Room(1, "Lab A", 40));
+        rooms.put(2, new Room(2, "Lecture Hall", 100));
+    }
 
     // GET all rooms
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Room> getAllRooms() {
-        return RoomRepository.getAllRooms();
+    public Collection<Room> getAllRooms() {
+        return rooms.values();
     }
 
     // GET room by id
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Room getRoom(@PathParam("id") int id) {
-        return RoomRepository.getRoomById(id);
+    public Response getRoom(@PathParam("id") int id) {
+
+        Room room = rooms.get(id);
+
+        if (room == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Room not found")
+                    .build();
+        }
+
+        return Response.ok(room).build();
     }
 
     // POST new room
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String addRoom(Room room) {
-        RoomRepository.addRoom(room);
-        return "Room added";
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addRoom(Room room) {
+
+        rooms.put(room.getId(), room);
+
+        return Response.status(Response.Status.CREATED)
+                .entity(room)
+                .build();
     }
 
     // PUT update room
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String updateRoom(@PathParam("id") int id, Room room) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateRoom(@PathParam("id") int id, Room updatedRoom) {
 
-        boolean updated = RoomRepository.updateRoom(id, room);
+        Room existing = rooms.get(id);
 
-        if (updated) {
-            return "Room updated";
-        } else {
-            return "Room not found";
+        if (existing == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Room not found")
+                    .build();
         }
+
+        // update values
+        existing.setName(updatedRoom.getName());
+        existing.setCapacity(updatedRoom.getCapacity());
+
+        return Response.ok(existing).build();
     }
 
     // DELETE room
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String deleteRoom(@PathParam("id") int id) {
+    public Response deleteRoom(@PathParam("id") int id) {
 
-        boolean deleted = RoomRepository.deleteRoom(id);
+        Room removed = rooms.remove(id);
 
-        if (deleted) {
-            return "Room deleted";
-        } else {
-            return "Room not found";
+        if (removed == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Room not found")
+                    .build();
         }
+
+        return Response.ok("Room deleted").build();
     }
 }

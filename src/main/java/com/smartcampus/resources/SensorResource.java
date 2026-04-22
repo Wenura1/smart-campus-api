@@ -18,7 +18,7 @@ public class SensorResource {
     // id generator
     private static int currentId = 1;
 
-    // simple response format
+    // helper response format
     private Map<String, Object> buildResponse(String status, Object data) {
         Map<String, Object> res = new HashMap<>();
         res.put("status", status);
@@ -26,27 +26,44 @@ public class SensorResource {
         return res;
     }
 
-    // GET all sensors
+    // get all sensors (with optional filtering)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllSensors() {
-        return Response.ok(buildResponse("success", sensors.values())).build();
+    public Response getAllSensors(@QueryParam("type") String type) {
+
+        Collection<Sensor> result = sensors.values();
+
+        // filter by type if provided
+        if (type != null && !type.trim().isEmpty()) {
+
+            List<Sensor> filtered = new ArrayList<>();
+
+            for (Sensor s : sensors.values()) {
+                if (s.getType().equalsIgnoreCase(type)) {
+                    filtered.add(s);
+                }
+            }
+
+            result = filtered;
+        }
+
+        return Response.ok(buildResponse("success", result)).build();
     }
 
-    // POST new sensor
+    // add new sensor
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addSensor(Sensor sensor) {
 
-        // basic validation
+        // validation
         if (sensor == null || sensor.getType() == null || sensor.getType().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Sensor type required"))
                     .build();
         }
 
-        // check room exists (important for coursework)
+        // check room exists
         Room room = RoomResource.getRoomMap().get(sensor.getRoomId());
 
         if (room == null) {
@@ -64,7 +81,7 @@ public class SensorResource {
                 .build();
     }
 
-    // expose sensors map (used later)
+    // expose sensors (used later)
     public static Map<Integer, Sensor> getSensorMap() {
         return sensors;
     }

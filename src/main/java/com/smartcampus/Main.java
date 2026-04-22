@@ -9,18 +9,30 @@ import java.net.URI;
 
 public class Main {
 
+    // base URL
     public static final String BASE_URI = "http://localhost:8080/";
 
     public static HttpServer startServer() {
-        final ResourceConfig rc = new ResourceConfig().packages("com.smartcampus");
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+
+        // scan resources
+        final ResourceConfig rc = new ResourceConfig()
+                .packages("com.smartcampus");
+
+        // set base path here (/api/v1)
+        return GrizzlyHttpServerFactory.createHttpServer(
+                URI.create(BASE_URI + "api/v1/"), rc
+        );
     }
 
     public static void main(String[] args) throws IOException {
+
         final HttpServer server = startServer();
+
         System.out.println("Server started at http://localhost:8080/api/v1");
         System.out.println("Press ENTER to stop...");
-        System.in.read();
+
+        System.in.read(); // keep running
+
         server.shutdownNow();
     }
 }

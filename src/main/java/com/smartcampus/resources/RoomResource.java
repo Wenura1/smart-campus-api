@@ -23,7 +23,7 @@ public class RoomResource {
         rooms.put(2, new Room(2, "Lecture Hall", 100));
     }
 
-    // helper method to build response
+    // helper method for response format
     private Map<String, Object> buildResponse(String status, Object data) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", status);
@@ -62,7 +62,7 @@ public class RoomResource {
     public Response addRoom(Room room) {
 
         // validation
-        if (room.getName() == null || room.getName().trim().isEmpty()) {
+        if (room == null || room.getName() == null || room.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Room name required"))
                     .build();
@@ -74,6 +74,7 @@ public class RoomResource {
                     .build();
         }
 
+        // generate id
         room.setId(currentId++);
         rooms.put(room.getId(), room);
 
@@ -97,7 +98,8 @@ public class RoomResource {
                     .build();
         }
 
-        if (updatedRoom.getName() == null || updatedRoom.getName().trim().isEmpty()) {
+        // validation
+        if (updatedRoom == null || updatedRoom.getName() == null || updatedRoom.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Room name required"))
                     .build();
@@ -109,6 +111,7 @@ public class RoomResource {
                     .build();
         }
 
+        // update values
         existing.setName(updatedRoom.getName());
         existing.setCapacity(updatedRoom.getCapacity());
 
@@ -129,6 +132,12 @@ public class RoomResource {
                     .build();
         }
 
-        return Response.ok(buildResponse("success", "Room deleted")).build();
+        // return deleted room
+        return Response.ok(buildResponse("success", removed)).build();
+    }
+
+    // expose rooms (used by SensorResource)
+    public static Map<Integer, Room> getRoomMap() {
+        return rooms;
     }
 }

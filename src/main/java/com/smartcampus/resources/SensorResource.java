@@ -34,9 +34,7 @@ public class SensorResource {
 
         Collection<Sensor> result = sensors.values();
 
-        // filter by type if provided
         if (type != null && !type.trim().isEmpty()) {
-
             List<Sensor> filtered = new ArrayList<>();
 
             for (Sensor s : sensors.values()) {
@@ -44,7 +42,6 @@ public class SensorResource {
                     filtered.add(s);
                 }
             }
-
             result = filtered;
         }
 
@@ -59,9 +56,10 @@ public class SensorResource {
 
         Sensor sensor = sensors.get(id);
 
-        // sensor not found
         if (sensor == null) {
-            throw new LinkedResourceNotFoundException("Sensor not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Sensor not found"))
+                    .build();
         }
 
         return Response.ok(buildResponse("success", sensor)).build();
@@ -73,21 +71,18 @@ public class SensorResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addSensor(Sensor sensor) {
 
-        // validation
         if (sensor == null || sensor.getType() == null || sensor.getType().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Sensor type required"))
                     .build();
         }
 
-        // check room exists
         Room room = RoomResource.getRoomMap().get(sensor.getRoomId());
 
         if (room == null) {
             throw new LinkedResourceNotFoundException("Room does not exist");
         }
 
-        // create sensor
         sensor.setId(currentId++);
         sensors.put(sensor.getId(), sensor);
 
@@ -105,26 +100,24 @@ public class SensorResource {
 
         Sensor existing = sensors.get(id);
 
-        // sensor not found
         if (existing == null) {
-            throw new LinkedResourceNotFoundException("Sensor not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Sensor not found"))
+                    .build();
         }
 
-        // validation
         if (updated == null || updated.getType() == null || updated.getType().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Sensor type required"))
                     .build();
         }
 
-        // check room exists
         Room room = RoomResource.getRoomMap().get(updated.getRoomId());
 
         if (room == null) {
             throw new LinkedResourceNotFoundException("Room does not exist");
         }
 
-        // update values
         existing.setType(updated.getType());
         existing.setRoomId(updated.getRoomId());
 
@@ -139,21 +132,22 @@ public class SensorResource {
 
         Sensor removed = sensors.remove(id);
 
-        // sensor not found
         if (removed == null) {
-            throw new LinkedResourceNotFoundException("Sensor not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Sensor not found"))
+                    .build();
         }
 
         return Response.ok(buildResponse("success", removed)).build();
     }
 
-    // sub-resource locator for readings
+    // sub-resource locator
     @Path("/{id}/readings")
     public SensorReadingResource getReadingResource(@PathParam("id") int id) {
         return new SensorReadingResource(id);
     }
 
-    // expose sensors (used later)
+    // expose sensors
     public static Map<Integer, Sensor> getSensorMap() {
         return sensors;
     }

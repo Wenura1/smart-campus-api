@@ -2,7 +2,6 @@ package com.smartcampus.resources;
 
 import com.smartcampus.model.Room;
 import com.smartcampus.model.Sensor;
-import com.smartcampus.exception.LinkedResourceNotFoundException;
 import com.smartcampus.exception.RoomNotEmptyException;
 
 import javax.ws.rs.*;
@@ -26,7 +25,7 @@ public class RoomResource {
         rooms.put(2, new Room(2, "Lecture Hall", 100));
     }
 
-    // helper method
+    // helper method (standard response format)
     private Map<String, Object> buildResponse(String status, Object data) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", status);
@@ -49,8 +48,11 @@ public class RoomResource {
 
         Room room = rooms.get(id);
 
+        // 404 when not found
         if (room == null) {
-            throw new LinkedResourceNotFoundException("Room not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Room not found"))
+                    .build();
         }
 
         return Response.ok(buildResponse("success", room)).build();
@@ -62,6 +64,7 @@ public class RoomResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addRoom(Room room) {
 
+        // validation
         if (room == null || room.getName() == null || room.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Room name required"))
@@ -74,6 +77,7 @@ public class RoomResource {
                     .build();
         }
 
+        // generate id
         room.setId(currentId++);
         rooms.put(room.getId(), room);
 
@@ -91,10 +95,14 @@ public class RoomResource {
 
         Room existing = rooms.get(id);
 
+        // 404 when not found
         if (existing == null) {
-            throw new LinkedResourceNotFoundException("Room not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Room not found"))
+                    .build();
         }
 
+        // validation
         if (updatedRoom == null || updatedRoom.getName() == null || updatedRoom.getName().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Room name required"))
@@ -107,6 +115,7 @@ public class RoomResource {
                     .build();
         }
 
+        // update values
         existing.setName(updatedRoom.getName());
         existing.setCapacity(updatedRoom.getCapacity());
 
@@ -121,13 +130,17 @@ public class RoomResource {
 
         Room room = rooms.get(id);
 
+        // 404 when not found
         if (room == null) {
-            throw new LinkedResourceNotFoundException("Room not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Room not found"))
+                    .build();
         }
 
-        // check sensor usage
+        // check if any sensor is using this room
         for (Sensor sensor : SensorResource.getSensorMap().values()) {
             if (sensor.getRoomId() == id) {
+                // correct: 409 conflict (handled by exception mapper)
                 throw new RoomNotEmptyException("Room has sensors assigned");
             }
         }
@@ -137,7 +150,7 @@ public class RoomResource {
         return Response.ok(buildResponse("success", room)).build();
     }
 
-    // expose rooms (used by sensorResource)
+    // expose rooms (used by SensorResource)
     public static Map<Integer, Room> getRoomMap() {
         return rooms;
     }

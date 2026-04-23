@@ -1,6 +1,7 @@
 package com.smartcampus.resources;
 
 import com.smartcampus.model.Room;
+import com.smartcampus.model.Sensor;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -133,7 +134,7 @@ public class RoomResource {
         }
 
         // check if any sensor is using this room
-        for (var sensor : SensorResource.getSensorMap().values()) {
+        for (Sensor sensor : SensorResource.getSensorMap().values()) {
             if (sensor.getRoomId() == id) {
                 return Response.status(Response.Status.CONFLICT)
                         .entity(buildResponse("error", "Room has sensors assigned"))

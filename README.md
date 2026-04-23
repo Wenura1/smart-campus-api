@@ -86,6 +86,16 @@ Filter:
 
 ---
 
+## API Testing Evidence
+
+Screenshots of API testing using Postman are available in the `/screenshots` folder.
+
+They include:
+- Successful requests (200, 201)
+- Validation errors (400)
+- Not found errors (404)
+- Business rule violations (409)
+
 ## Notes
 
 - ID is auto generated

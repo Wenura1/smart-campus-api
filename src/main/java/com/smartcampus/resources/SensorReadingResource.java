@@ -2,7 +2,6 @@ package com.smartcampus.resources;
 
 import com.smartcampus.model.Sensor;
 import com.smartcampus.model.SensorReading;
-import com.smartcampus.exception.LinkedResourceNotFoundException;
 import com.smartcampus.exception.SensorUnavailableException;
 
 import javax.ws.rs.*;
@@ -15,18 +14,18 @@ public class SensorReadingResource {
 
     private int sensorId;
 
-    // store readings for each sensor
+    // store readings per sensor
     private static Map<Integer, List<SensorReading>> readingsMap = new HashMap<>();
 
     // id generator
     private static int currentId = 1;
 
-    // constructor (gets sensor id from parent)
+    // constructor (gets sensor id from parent resource)
     public SensorReadingResource(int sensorId) {
         this.sensorId = sensorId;
     }
 
-    // helper response format
+    // helper method to build response
     private Map<String, Object> buildResponse(String status, Object data) {
         Map<String, Object> res = new HashMap<>();
         res.put("status", status);
@@ -39,13 +38,16 @@ public class SensorReadingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReadings() {
 
-        // check sensor exists
+        // check sensor exists (404 if not found)
         Sensor sensor = SensorResource.getSensorMap().get(sensorId);
 
         if (sensor == null) {
-            throw new LinkedResourceNotFoundException("Sensor not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Sensor not found"))
+                    .build();
         }
 
+        // get readings list (empty list if none)
         List<SensorReading> list = readingsMap.get(sensorId);
 
         if (list == null) {
@@ -61,19 +63,21 @@ public class SensorReadingResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addReading(SensorReading reading) {
 
-        // check sensor exists
+        // check sensor exists (404 if not found)
         Sensor sensor = SensorResource.getSensorMap().get(sensorId);
 
         if (sensor == null) {
-            throw new LinkedResourceNotFoundException("Sensor not found");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(buildResponse("error", "Sensor not found"))
+                    .build();
         }
 
-        // check sensor status (important for rubric)
+        // check sensor status (403 if under maintenance)
         if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus())) {
             throw new SensorUnavailableException("Sensor is under maintenance");
         }
 
-        // validation
+        // validate input (400 bad request)
         if (reading == null) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(buildResponse("error", "Invalid reading"))
@@ -87,7 +91,7 @@ public class SensorReadingResource {
         readingsMap.putIfAbsent(sensorId, new ArrayList<>());
         readingsMap.get(sensorId).add(reading);
 
-        // update sensor current value (IMPORTANT requirement)
+        // update sensor current value (important requirement)
         sensor.setCurrentValue(reading.getValue());
 
         return Response.status(Response.Status.CREATED)

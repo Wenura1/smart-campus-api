@@ -17,7 +17,8 @@ public class LinkedResourceNotFoundExceptionMapper implements ExceptionMapper<Li
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", "error");
-        response.put("data", ex.getMessage());
+        response.put("message", ex.getMessage());
+        response.put("data", null);
 
         return Response.status(422)
                 .entity(response)

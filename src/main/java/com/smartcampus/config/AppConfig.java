@@ -6,7 +6,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class AppConfig extends ResourceConfig {
 
     public AppConfig() {
-        // scan ALL project packages (safe option)
+        // scan ALL project packages
         packages("com.smartcampus");
     }
 }

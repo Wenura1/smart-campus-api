@@ -7,6 +7,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 
+
 // logs incoming requests and responses
 @Provider
 public class LoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
